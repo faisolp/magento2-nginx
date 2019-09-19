@@ -1,0 +1,71 @@
+version: '2'
+services:
+
+  nginx:
+          build: ./nginx/
+          ports:
+                  - "80:80" 
+                  - "443:443"
+          volumes_from:
+                  - php
+          volumes:
+                  - ./logs/nginx:/var/log/nginx
+                  - ./nginx/sites-available:/etc/nginx/sites-available
+          links:
+                  - php
+                       
+          logging:
+            driver: "json-file"
+            options:
+               max-size: "200k"
+               max-file: "10"
+
+  php:
+          build: ./php/
+          volumes:
+                  - ./www:/www      
+                  - ./logs/php-fpm:/var/log/php-fpm
+          links:
+                  - mariadb
+          logging:
+            driver: "json-file"
+            options:
+               max-size: "200k"
+               max-file: "10"
+  mariadb:
+          image: mariadb
+          restart: always
+          volumes:
+                  - ./mysql/data/:/var/lib/mysql
+                  - ./mysql/initdb/:/docker-entrypoint-initdb.d
+                 # - ./mysql/mysql.sh:/etc/mysql.sh
+
+          environment:
+                  MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+                  MYSQL_USER: ${MYSQL_USER}
+                  MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+                  MYSQL_DATABASE: ${MYSQL_DATABASE}
+          expose:
+                  - "3306"
+          logging:
+            driver: "json-file"
+            options:
+               max-size: "200k"
+               max-file: "10"
+  phpmyadmin:
+          image: phpmyadmin/phpmyadmin
+          restart: always
+          links:
+                  - mariadb
+          ports:
+                  - 8080:80
+          environment:
+                  MYSQL_USERNAME: ${MYSQL_USER}
+                  MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+                  PMA_HOST: mariadb
+                  PMA_ARBITRARY: 1
+          logging:
+            driver: "json-file"
+            options:
+               max-size: "200k"
+               max-file: "10"
