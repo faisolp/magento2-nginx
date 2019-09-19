@@ -1,7 +1,11 @@
 edit .nav
+
 MYSQL_ROOT_PASSWORD=ROOT_PASSWORD
+
 MYSQL_USER=admin
+
 MYSQL_PASSWORD=ROOT_PASSWORD
+
 MYSQL_DATABASE=magento2
 
 1). Download Magento 2 version 2.31 you wish to dockerize and upload it in directory magento2 in parallel docker-compose.yml.
